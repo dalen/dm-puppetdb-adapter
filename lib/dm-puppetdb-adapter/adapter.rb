@@ -11,11 +11,8 @@ module DataMapper
       attr_accessor :http, :host, :port, :ssl
 
       def read(query)
-        puts query.inspect
         model = query.model
 
-        pdbquery = build_query(query)
-        puts pdbquery.inspect
         query.filter_records(puppetdb_get(model.storage_name(model.repository_name), build_query(query)))
       end
 
