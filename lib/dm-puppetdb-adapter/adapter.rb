@@ -56,34 +56,45 @@ module DataMapper
           return q
         end
 
-        # We can only do comparison on certain fields
-        # on the server side
-        if c.subject.model.respond_to? :server_fields
-          return nil unless c.subject.model.server_fields.include? c.subject.name
+        # Determine the property we should match on
+        if c.subject.kind_of? DataMapper::Property
+          property = c.subject
+        elsif c.subject.kind_of? DataMapper::Associations::Relationship
+          property = c.subject.parent_key.first
+        else
+          puts "Unhandled subject #{c.subject.inspect}"
+          raise RuntimeError, "Unhandled subject #{c.subject.inspect}"
         end
 
-        # TODO: subqueries
-       return nil unless model == c.subject.model
+        # We can only do comparison on certain fields
+        # on the server side
+        if property.model.respond_to? :server_fields
+          return nil unless property.model.server_fields.include? property.name
+        end
 
         case c
         when DataMapper::Query::Conditions::EqualToComparison
-          ['=', c.subject.field, format_value(c.value)]
+          ['=', property.field, format_value(c.value)]
         when DataMapper::Query::Conditions::RegexpComparison
-          ['~', c.subject.field, format_value(c.value)]
+          ['~', property.field, format_value(c.value)]
         when DataMapper::Query::Conditions::LessThanComparison
-          ['<', c.subject.field, format_value(c.value)]
+          ['<', property.field, format_value(c.value)]
         when DataMapper::Query::Conditions::GreaterThanComparison
-          ['>', c.subject.field, format_value(c.value)]
+          ['>', property.field, format_value(c.value)]
         # The following comparison operators aren't supported by PuppetDB
         # So we emulate them
         when DataMapper::Query::Conditions::LikeComparison
-          ['~', c.subject.field, c.value.gsub('%', '.*')]
+          ['~', property.field, c.value.gsub('%', '.*')]
         when DataMapper::Query::Conditions::LessThanOrEqualToComparison
-          ['or', ['=', c.subject.field, format_value(c.value)], ['<', c.subject.field, format_value(c.value)]]
+          ['or', ['=', property.field, format_value(c.value)], ['<', property.field, format_value(c.value)]]
         when DataMapper::Query::Conditions::GreaterThanOrEqualToComparison
-          ['or', ['=', c.subject.field, format_value(c.value)], ['>', c.subject.field, format_value(c.value)]]
+          ['or', ['=', property.field, format_value(c.value)], ['>', property.field, format_value(c.value)]]
         when DataMapper::Query::Conditions::InclusionComparison
-          ['or', ['=', c.subject.field, format_value(c.value.first)], ['>', c.subject.field, format_value(c.value.first)], ['<', c.subject.field, format_value(c.value.last)], ['=', c.subject.field, format_value(c.value.last)]]
+          if c.value.kind_of? Range
+            ['or', ['=', property.field, format_value(c.value.first)], ['>', property.field, format_value(c.value.first)], ['<', property.field, format_value(c.value.last)], ['=', property.field, format_value(c.value.last)]]
+          else
+            ['or', *c.value.collect { |v| ['=', property.field, v.value]} ]
+          end
         end
       end
 
