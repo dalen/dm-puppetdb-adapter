@@ -34,34 +34,26 @@ module DataMapper
       # contruct a puppetdb query from a datamapper query
       def build_query(query)
         conditions = query.conditions
-        if conditions.empty?
+        if conditions.nil?
           nil
-        elsif conditions.one?
-          puppetdb_condition(conditions.first)
         else
-          q = ['and', *conditions.map do |c|
-            puppetdb_condition c
-          end.compact ]
-          # In case we couldn't build any query from the contained
-          # conditions return nil instead of a empty and
-          return q.last if q.count == 2
-          return nil if q.count < 2
-          q
+           puppetdb_condition(conditions, query.model)
         end
       end
 
       ##
       # return puppetdb syntax for a condition
-      def puppetdb_condition(c)
+      def puppetdb_condition(c, model)
         case c
         when DataMapper::Query::Conditions::NullOperation
           nil
         when DataMapper::Query::Conditions::AbstractOperation
-          q = [c.class.slug.to_s, *c.operands.map { |o| puppetdb_condition o }.compact]
+          q = [c.class.slug.to_s, *c.operands.map { |o| puppetdb_condition o, model }.compact]
           # In case we couldn't build any query from the contained
           # conditions return nil instead of a empty and
+          return q.last if q.count == 2
           return nil if q.count < 2
-          q
+          return q
         end
 
         # We can only do comparison on certain fields
@@ -69,6 +61,9 @@ module DataMapper
         if c.subject.model.respond_to? :server_fields
           return nil unless c.subject.model.server_fields.include? c.subject.name
         end
+
+        # TODO: subqueries
+       return nil unless model == c.subject.model
 
         case c
         when DataMapper::Query::Conditions::EqualToComparison
