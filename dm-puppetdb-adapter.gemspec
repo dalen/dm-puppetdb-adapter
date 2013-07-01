@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'json'
   gem.add_dependency 'puppet', '~> 3'
   gem.add_dependency 'dm-types'
+  gem.add_dependency 'dm-core'
 
   gem.add_development_dependency 'rake'
 end
