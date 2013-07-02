@@ -60,7 +60,11 @@ module DataMapper
         if c.subject.kind_of? DataMapper::Property
           property = c.subject
         elsif c.subject.kind_of? DataMapper::Associations::Relationship
-          property = c.subject.parent_key.first
+          if model == c.subject.parent_model
+            property = c.subject.parent_key.first
+          else
+            property = c.subject.child_key.first
+          end
         else
           puts "Unhandled subject #{c.subject.inspect}"
           raise RuntimeError, "Unhandled subject #{c.subject.inspect}"
