@@ -11,9 +11,9 @@ class Report
   property :report_format, Integer, :field => 'report-format'
   property :puppet_version, String, :length => 255, :field => 'puppet-version'
 
-  belongs_to :node, :model => 'Node', :child_key => :certname
+  belongs_to :node, :child_key => :certname
 
-  has n, :events, :model => 'Event', :child_key => [ :report ]
+  has n, :events, :child_key => [ :report ]
 
   @server_fields = [ :certname ]
   class << self

@@ -6,7 +6,7 @@ class Fact
   property :name, Text, :key => true
   property :value, Text
 
-  belongs_to :node, :model => 'Node', :child_key => :certname, :key => true
+  belongs_to :node, :child_key => :certname, :key => true
 
   @server_fields = [:name, :value, :certname]
   class << self

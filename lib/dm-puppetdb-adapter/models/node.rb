@@ -8,9 +8,9 @@ class Node
   property :catalog_timestamp, DateTime
   property :report_timestamp, DateTime
 
-  has n, :facts, :model => 'Fact', :child_key => [ :certname ]
-  has n, :events, :model => 'Event', :child_key => [ :certname ]
-  has n, :reports, :model => 'Report', :child_key => [ :certname ]
+  has n, :facts, :child_key => [ :certname ]
+  has n, :events, :child_key => [ :certname ]
+  has n, :reports, :child_key => [ :certname ]
 
   @server_fields = [:name]
   class << self

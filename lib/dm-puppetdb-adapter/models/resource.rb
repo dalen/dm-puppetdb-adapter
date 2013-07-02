@@ -13,7 +13,7 @@ class Resource
   property :title, Text, :required => true, :key => true
   property :tags, Json, :required => true
 
-  belongs_to :node, :model => 'Node', :child_key => :certname, :key => true
+  belongs_to :node, :child_key => :certname, :key => true
   @server_fields = [
     :tag,
     :certname,

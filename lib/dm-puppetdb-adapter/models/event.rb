@@ -12,8 +12,8 @@ class Event
   property :resource_type, Text, :field => 'resource-type', :key => true
   property :resource_title, Text, :field => 'resource-title', :key => true
 
-  belongs_to :node, :model => 'Node', :child_key => :certname
-  belongs_to :report, :model => 'Report', :key => true
+  belongs_to :node, :child_key => :certname
+  belongs_to :report, :child_key => :report, :key => true
 
   @server_fields = [
     :certname,
