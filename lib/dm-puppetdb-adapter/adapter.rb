@@ -93,7 +93,7 @@ module DataMapper
           if c.value.kind_of? Range
             ['or', ['=', property.field, format_value(c.value.first)], ['>', property.field, format_value(c.value.first)], ['<', property.field, format_value(c.value.last)], ['=', property.field, format_value(c.value.last)]]
           else
-            ['or', *c.value.collect { |v| ['=', property.field, v.value]} ]
+            ['or', *c.value.collect { |v| ['=', property.field, format_value(v.value)]} ]
           end
         end
       end
