@@ -15,7 +15,7 @@ module DataMapper
 
         pdbquery = build_query(query)
 
-        results = puppetdb_get(model.storage_name(model.repository_name), pdbquery, query.limit)
+        results = puppetdb_get(model.storage_name(model.repository_name), pdbquery)
 
         query.filter_records(results)
       end
@@ -119,10 +119,9 @@ module DataMapper
         end
       end
 
-      def puppetdb_get(path, query=nil, limit=nil)
+      def puppetdb_get(path, query=nil)
         uri = "/#{path}?query="
         uri += URI.escape query.to_json.to_s unless query.nil?
-        uri += "&limit=#{limit}" unless limit.nil?
         resp = @http.get(uri, { "Accept" => "application/json" })
         raise RuntimeError, "PuppetDB query error: [#{resp.code}] #{resp.msg}, endpoint: #{path}, query: #{query.to_json}" unless resp.kind_of?(Net::HTTPSuccess)
         # Do a ugly hack because Hash and Array
