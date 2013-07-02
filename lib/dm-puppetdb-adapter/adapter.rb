@@ -104,6 +104,8 @@ module DataMapper
       def format_value(value)
         if value.is_a? Date or value.is_a? Time
           value.strftime('%FT%T.%LZ')
+        elsif value.is_a? DataMapper::Resource
+          value.key.first
         else
           value
         end
